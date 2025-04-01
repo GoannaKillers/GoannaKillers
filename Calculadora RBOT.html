@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculadora de Experiência RubinOT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-image: url('https://i.ytimg.com/vi/DMzXYOz6o7I/maxresdefault.jpg'); /* Imagem do Tibia 7.6 */
+            background-size: cover; /* Ajusta para cobrir a tela */
+            background-position: center; /* Centraliza a imagem */
+            background-repeat: no-repeat; /* Sem repetição */
+            color: #fff; /* Texto branco para contraste */
+        }
+        h2 {
+            background: rgba(0, 0, 0, 0.7); /* Fundo semitransparente */
+            padding: 10px; /* Espaçamento interno */
+            border-radius: 5px; /* Bordas arredondadas */
+            text-align: center; /* Centraliza o texto */
+        }
+        .input-group {
+            margin: 10px 0;
+            background: rgba(0, 0, 0, 0.7); /* Fundo semitransparente */
+            padding: 10px;
+            border-radius: 5px;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+        }
+        .button-container {
+            text-align: center; /* Centraliza o botão horizontalmente */
+            margin-top: 15px; /* Espaçamento acima */
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #resultado {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: rgba(0, 0, 0, 0.7); /* Fundo semitransparente */
+            border-radius: 5px;
+        }
+        #horasBoostGroup {
+            display: none;
+        }
+        footer {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.7); /* Fundo semitransparente */
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Calculadora de Experiência RubinOT</h2>
+    
+    <div class="input-group">
+        <label>Level Atual:</label>
+        <input type="number" id="levelAtual" min="1" value="1">
+    </div>
+    
+    <div class="input-group">
+        <label>Level Desejado:</label>
+        <input type="number" id="levelDesejado" min="2" value="2">
+    </div>
+    
+    <div class="input-group">
+        <label>RAW XP/KK por hora:</label>
+        <input type="number" id="xpPorHora" min="0" value="0"> (em KK, 1KK = 1.000.000)
+    </div>
+    
+    <div class="input-group">
+        <label>Horas por dia:</label>
+        <input type="number" id="horasDia" min="0" step="0.1" value="0">
+    </div>
+    
+    <div class="input-group">
+        <label>Possui Boost XP?</label>
+        <select id="boostXP" onchange="toggleHorasBoost()">
+            <option value="nao">Não</option>
+            <option value="sim">Sim</option>
+        </select>
+    </div>
+    
+    <div class="input-group" id="horasBoostGroup">
+        <label>Horas com Boost XP:</label>
+        <input type="number" id="horasBoost" min="0" max="2" step="0.1" value="0"> (Máximo 2h)
+    </div>
+    
+    <div class="button-container">
+        <button onclick="calcular()">CALCULAR</button>
+    </div>
+    
+    <div id="resultado"></div>
+    
+    <footer>Criado por Pallyzao e Grok</footer>
+
+    <script>
+        function calcularExperiencia(level) {
+            return Math.floor(50 * (Math.pow(level, 3) - 6 * Math.pow(level, 2) + 17 * level - 12) / 3);
+        }
+
+        function getMultiplicador(level) {
+            if (level >= 1 && level <= 8) return 50;
+            if (level >= 9 && level <= 50) return 80;
+            if (level >= 51 && level <= 100) return 60;
+            if (level >= 101 && level <= 150) return 40;
+            if (level >= 151 && level <= 200) return 30;
+            if (level >= 201 && level <= 300) return 15;
+            if (level >= 301 && level <= 400) return 12;
+            if (level >= 401 && level <= 500) return 10;
+            if (level >= 501 && level <= 600) return 7;
+            if (level >= 601 && level <= 700) return 6;
+            if (level >= 701 && level <= 800) return 5;
+            if (level >= 801 && level <= 900) return 4;
+            if (level >= 901 && level <= 1000) return 3;
+            if (level >= 1001 && level <= 1200) return 2;
+            if (level >= 1201 && level <= 1400) return 1.5;
+            if (level >= 1400) return 1.2;
+            return 1;
+        }
+
+        function toggleHorasBoost() {
+            const boostXP = document.getElementById('boostXP').value;
+            const horasBoostGroup = document.getElementById('horasBoostGroup');
+            horasBoostGroup.style.display = boostXP === 'sim' ? 'block' : 'none';
+        }
+
+        function calcular() {
+            const levelAtual = parseInt(document.getElementById('levelAtual').value);
+            const levelDesejado = parseInt(document.getElementById('levelDesejado').value);
+            const xpPorHoraKK = parseFloat(document.getElementById('xpPorHora').value);
+            const horasDia = parseFloat(document.getElementById('horasDia').value);
+            const boostXP = document.getElementById('boostXP').value;
+            let horasBoost = boostXP === 'sim' ? parseFloat(document.getElementById('horasBoost').value) : 0;
+
+            if (horasBoost > 2) horasBoost = 2;
+
+            if (levelAtual < 1 || levelDesejado <= levelAtual || xpPorHoraKK <= 0 || horasDia <= 0) {
+                document.getElementById('resultado').innerHTML = 'Por favor, insira valores válidos: ' +
+                    'Level desejado maior que o atual, XP/hora e horas/dia maiores que 0';
+                return;
+            }
+            if (boostXP === 'sim' && horasBoost <= 0) {
+                document.getElementById('resultado').innerHTML = 'Horas de Boost XP devem ser maiores que 0';
+                return;
+            }
+
+            const xpAtual = calcularExperiencia(levelAtual);
+            const xpDesejada = calcularExperiencia(levelDesejado);
+            const xpNecessaria = xpDesejada - xpAtual;
+
+            const xpPorHoraBase = xpPorHoraKK * 1000000;
+
+            const multiplicador = getMultiplicador(levelAtual);
+            const percentualBase = multiplicador * 100;
+            const percentualComBoost = percentualBase + (percentualBase * 0.5);
+
+            const xpHoraNormal = xpPorHoraBase * (percentualBase / 100);
+            const xpHoraBoost = boostXP === 'sim' ? xpPorHoraBase * (percentualComBoost / 100) : xpHoraNormal;
+            let xpPorDia = 0;
+
+            if (horasDia <= 3) {
+                const horasBoostEfetivas = boostXP === 'sim' ? Math.min(horasDia, horasBoost) : 0;
+                const horasNormais = horasDia - horasBoostEfetivas;
+                xpPorDia = (xpHoraBoost * horasBoostEfetivas + xpHoraNormal * horasNormais) * 1.5;
+            } else {
+                const horasSemBonus = horasDia - 3;
+                const horasBoostEfetivas = boostXP === 'sim' ? Math.min(3, horasBoost) : 0;
+                const horasNormaisComBonus = 3 - horasBoostEfetivas;
+                const xpComBonus = (xpHoraBoost * horasBoostEfetivas + xpHoraNormal * horasNormaisComBonus) * 1.5;
+                const xpSemBonus = xpHoraNormal * horasSemBonus;
+                xpPorDia = xpComBonus + xpSemBonus;
+            }
+
+            const diasNecessarios = xpNecessaria / xpPorDia;
+
+            const xpNecessariaKK = (xpNecessaria / 1000000).toFixed(2);
+            const diasFormatados = diasNecessarios.toFixed(2);
+            const horasTotais = (diasNecessarios * horasDia).toFixed(1);
+            const percentualFinal = horasDia <= 3 ? percentualComBoost * 1.5 : percentualComBoost;
+
+            document.getElementById('resultado').innerHTML = `
+                Experiência necessária: ${xpNecessariaKK} KK (${xpNecessaria.toLocaleString()} XP)<br>
+                Tempo necessário: ${diasFormatados} dias (${horasTotais} horas no total)<br>
+                XP por dia: ${(xpPorDia/1000000).toFixed(2)} KK<br>
+                Percentual base: ${percentualBase.toFixed(0)}%<br>
+                Percentual com Boost (aplicado em ${boostXP === 'sim' ? Math.min(horasBoost, 3) : 0}h): ${boostXP === 'sim' ? percentualComBoost.toFixed(0) : percentualBase.toFixed(0)}%<br>
+                Bônus 3h: ${horasDia <= 3 ? '50% em todas as horas' : '50% nas 3 primeiras horas'}
+            `;
+        }
+    </script>
+</body>
+</html>
